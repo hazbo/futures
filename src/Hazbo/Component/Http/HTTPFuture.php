@@ -47,7 +47,8 @@ final class HTTPFuture extends BaseHTTPFuture
 
     private $profilerCallID;
 
-    public function setURI($uri) {
+    public function setURI($uri)
+    {
         $parts = parse_url($uri);
         if (!$parts) {
             throw new Exception("Could not parse URI '{$uri}'.");
