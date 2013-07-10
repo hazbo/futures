@@ -2,7 +2,7 @@
     "name": "hazbo/futures",
     "type": "library",
     "description": "Make asynchronous http requests or run system commands asynchronously!",
-    "keywords": ["asynchronous","http","request", "system", "exec", "commands", "hazbo"],
+    "keywords": ["futures", "asynchronous","http","request", "system", "exec", "commands", "hazbo"],
     "require": {
         "php": ">=5.3.0"
     },
