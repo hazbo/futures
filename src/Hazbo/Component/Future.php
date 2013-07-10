@@ -1,5 +1,7 @@
 <?php
 
+//namespace Hazbo\Component;
+
 /**
  * A 'future' or 'promise' is an object which represents the result of some
  * pending computation. For a more complete overview of futures, see
@@ -8,12 +10,13 @@
  * @group futures
  * @stable
  */
-abstract class Future {
-
+abstract class Future
+{
   protected static $handlerInstalled = null;
 
-  protected $result;
-  protected $exception;
+  protected
+    $result,
+    $exception;
 
   /**
    * Is this future's process complete? Specifically, can this future be
@@ -32,7 +35,8 @@ abstract class Future {
    *               execution will return to the caller.
    * @return mixed Future result, or null if the timeout is hit.
    */
-  public function resolve($timeout = null) {
+  public function resolve($timeout = null)
+  {
     $start = microtime(true);
     $wait  = $this->getDefaultWait();
     do {
@@ -64,12 +68,14 @@ abstract class Future {
     return $this->getResult();
   }
 
-  public function setException(Exception $ex) {
+  public function setException(Exception $ex)
+  {
     $this->exception = $ex;
     return $this;
   }
 
-  public function getException() {
+  public function getException()
+  {
     return $this->exception;
   }
 
@@ -77,7 +83,8 @@ abstract class Future {
   /**
    * If an exception was set by setException(), throw it.
    */
-  private function checkException() {
+  private function checkException()
+  {
     if ($this->exception) {
       throw $this->exception;
     }
@@ -93,7 +100,8 @@ abstract class Future {
    *
    * @return list  A list of sockets which we expect to become readable.
    */
-  public function getReadSockets() {
+  public function getReadSockets()
+  {
     return array();
   }
 
@@ -104,7 +112,8 @@ abstract class Future {
    *
    * @return list  A list of sockets which we expect to become writable.
    */
-  public function getWriteSockets() {
+  public function getWriteSockets()
+  {
     return array();
   }
 
@@ -187,5 +196,4 @@ abstract class Future {
     $this->isReady();
     return $this;
   }
-
 }
