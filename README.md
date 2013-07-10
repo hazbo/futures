@@ -21,6 +21,17 @@ These libraries are for everything in the `src/future` so I've namespaced
 them up, cleaned up the code to follow PSR standards (not finished!) and
 have only tested a very small part of it; making Http Requests.
 
+### Install
+You can add this component to your project using composer:
+
+```json
+{
+	"require" : {
+		"hazbo/futures" : "dev-master"
+	}
+}
+```
+
 ### Asynchronously
 
 ```php
