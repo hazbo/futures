@@ -1,6 +1,6 @@
 <?php
 
-//namespace Hazbo\Component;
+namespace Hazbo\Component;
 
 /**
  * A 'future' or 'promise' is an object which represents the result of some

@@ -1,5 +1,7 @@
 <?php
 
+namespace Hazbo\Component;
+
 /**
  * FutureIterator aggregates @{class:Future}s and allows you to respond to them
  * in the order they resolve. This is useful because it minimizes the amount of

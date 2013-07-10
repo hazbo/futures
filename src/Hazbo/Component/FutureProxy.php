@@ -1,5 +1,7 @@
 <?php
 
+namespace Hazbo\Component;
+
 /**
  * Wraps another Future and allows you to post-process its result once it
  * resolves.

@@ -1,5 +1,7 @@
 <?php
 
+namespace Hazbo\Component;
+
 /**
  * Degenerate future which returns an already-existing result without performing
  * any computation.
