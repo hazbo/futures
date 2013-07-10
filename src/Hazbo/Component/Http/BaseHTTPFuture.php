@@ -26,16 +26,13 @@ use
  */
 abstract class BaseHTTPFuture extends Component\Future
 {
-
     private $method   = 'GET';
     private $timeout  = 300.0;
     private $headers  = array();
     private $uri;
     private $data;
 
-
 /* -(  Creating a New Request  )--------------------------------------------- */
-
 
     /**
      * Build a new future which will make an HTTP request to a given URI, with
@@ -55,9 +52,7 @@ abstract class BaseHTTPFuture extends Component\Future
         $this->setData($data);
     }
 
-
 /* -(  Configuring the Request  )-------------------------------------------- */
-
 
     /**
      * Set a timeout for the service call. If the request hasn't resolved yet,
@@ -75,7 +70,6 @@ abstract class BaseHTTPFuture extends Component\Future
         return $this;
     }
 
-
     /**
      * Get the currently configured timeout.
      *
@@ -86,7 +80,6 @@ abstract class BaseHTTPFuture extends Component\Future
     {
         return $this->timeout;
     }
-
 
     /**
      * Select the HTTP method (e.g., "GET", "POST", "PUT") to use for the request.
@@ -116,7 +109,6 @@ abstract class BaseHTTPFuture extends Component\Future
         return $this;
     }
 
-
     /**
      * Get the HTTP method the request will use.
      *
@@ -127,7 +119,6 @@ abstract class BaseHTTPFuture extends Component\Future
     {
         return $this->method;
     }
-
 
     /**
      * Set the URI to send the request to. Note that this is also a constructor
@@ -143,7 +134,6 @@ abstract class BaseHTTPFuture extends Component\Future
         return $this;
     }
 
-
     /**
      * Get the fully-qualified URI the request will be made to.
      *
@@ -154,7 +144,6 @@ abstract class BaseHTTPFuture extends Component\Future
     {
         return $this->uri;
     }
-
 
     /**
      * Provide data to send along with the request. Note that this is also a
@@ -175,7 +164,6 @@ abstract class BaseHTTPFuture extends Component\Future
         return $this;
     }
 
-
     /**
      * Get the data which will be sent with the request.
      *
@@ -186,7 +174,6 @@ abstract class BaseHTTPFuture extends Component\Future
     {
         return $this->data;
     }
-
 
     /**
      * Add an HTTP header to the request. The same header name can be specified
@@ -202,7 +189,6 @@ abstract class BaseHTTPFuture extends Component\Future
         $this->headers[] = array($name, $value);
         return $this;
     }
-
 
     /**
      * Get headers which will be sent with the request. Optionally, you can
@@ -234,9 +220,7 @@ abstract class BaseHTTPFuture extends Component\Future
         return $result;
     }
 
-
 /* -(  Resolving the Request  )---------------------------------------------- */
-
 
     /**
      * Exception-oriented resolve(). Throws if the status indicates an error
@@ -257,9 +241,7 @@ abstract class BaseHTTPFuture extends Component\Future
         return array($body, $headers);
     }
 
-
 /* -(  Internals  )---------------------------------------------------------- */
-
 
     /**
      * Parse a raw HTTP response into a <status, body, headers> tuple.
@@ -341,7 +323,6 @@ abstract class BaseHTTPFuture extends Component\Future
 
         return $headers;
     }
-
 
     /**
      * Build a result tuple indicating a parse error resulting from a malformed
