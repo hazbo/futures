@@ -9,7 +9,7 @@ concrete Future implementations: ExecFuture for executing system commands,
 HTTPFuture for making HTTP requests, and QueryFuture for executing database
 queries." - *Facebook*
 
-This is all true, however *this* library only supports Http requests and the
+This is all true, however *this* library only supports http requests and the
 ability to execute system commands, asynchronously (or synchronously).
 
 ### What is it?
