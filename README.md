@@ -87,7 +87,7 @@ So above we are just making a synchronous request, it will block until the
 request has finished.
 
 I don't know how well I've explained this... but it's awesome! Credit to the
-guys at Facebook who started this off. Feel free to contribute!
+guys at [Facebook](https://github.com/facebook) who started this off. Feel free to contribute!
 
 ### Disclaimer
 I have not yet finished off the code for performing system commands! I'm working
