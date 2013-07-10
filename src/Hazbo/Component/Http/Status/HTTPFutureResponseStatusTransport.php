@@ -2,11 +2,13 @@
 
 namespace Hazbo\Component\Http;
 
+use Hazbo\Component\Utils\Utils;
+
 /**
  * @group futures
  */
-final class Http_Status_HTTPFutureResponseStatusTransport extends Status_HTTPFutureResponseStatus {
-
+final class Status_HTTPFutureResponseStatusTransport extends Status_HTTPFutureResponseStatus
+{
   const ERROR_TIMEOUT             = 1;
   const ERROR_CONNECTION_ABORTED  = 2;
   const ERROR_CONNECTION_REFUSED  = 3;
@@ -42,7 +44,7 @@ final class Http_Status_HTTPFutureResponseStatusTransport extends Status_HTTPFut
         'domain to `/etc/hosts` on some other machine, but not this one?) '.
         'This might also indicate that you specified the wrong port.',
     );
-    return idx($map, $code);
+    return Utils::idx($map, $code);
   }
 
 }

@@ -49,30 +49,15 @@ final class HTTPFuture extends BaseHTTPFuture
 
     public function setURI($uri)
     {
-        $parts = parse_url($uri);
-        if (!$parts) {
-            throw new Exception("Could not parse URI '{$uri}'.");
-        }
+        $url_processor = new UrlProcessor($uri);
+        $url_processor->validateForHttpFuture();
 
-        if (empty($parts['scheme']) || $parts['scheme'] !== 'http') {
-            throw new Exception(
-                "URI '{$uri}' must be fully qualified with 'http://' scheme.");
-        }
-
-        if (!isset($parts['host'])) {
-            throw new Exception(
-                "URI '{$uri}' must be fully qualified and include host name.");
-        }
+        $parts = $url_processor->getUrlParts();
 
         $this->host = $parts['host'];
 
         if (!empty($parts['port'])) {
             $this->port = $parts['port'];
-        }
-
-        if (isset($parts['user']) || isset($parts['pass'])) {
-            throw new Exception(
-                "HTTP Basic Auth is not supported by HTTPFuture.");
         }
 
         if (isset($parts['path'])) {
@@ -84,7 +69,6 @@ final class HTTPFuture extends BaseHTTPFuture
         if (isset($parts['query'])) {
             $this->fullRequestPath .= '?'.$parts['query'];
         }
-
         return parent::setURI($uri);
     }
 
