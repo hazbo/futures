@@ -14,7 +14,7 @@ ability to execute system commands, asynchronously. (or synchronously)
 
 ### What is it?
 
-This set of files was originaly forked from Facebook's `libphutil` which has
+This set of files was originaly forked from Facebook's [libphutil](https://github.com/facebook/libphutil) which has
 some pretty nifty little tools, you should go check it out!
 
 These libraries are for everything in the `src/future` so I've namespaced
