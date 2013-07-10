@@ -40,7 +40,7 @@ class UrlProcessor
 		$scheme = $this->urlParts['scheme'];
         if (empty($scheme) || $scheme !== 'http') {
             throw new \Exception("
-            	URI '{$uri}' must be fully qualified with 'http://' scheme."
+            	URI '{$this->uri}' must be fully qualified with 'http://' scheme."
             );
         }
         return true;
