@@ -8,8 +8,8 @@ namespace Hazbo\Component\ServiceProfiler;
  *
  * @group util
  */
-final class PhutilServiceProfiler {
-
+final class PhutilServiceProfiler
+{
   private static $instance;
   private $listeners = array();
   private $events = array();
