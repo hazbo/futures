@@ -1,6 +1,6 @@
 # Future
 
-Define: **Futures** :
+Define: **Futures** -
 
 "Futures (also known as "promises") are objects which act as placeholders for
 some future result of computation. They let you express parallel and
