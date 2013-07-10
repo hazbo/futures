@@ -10,7 +10,7 @@ HTTPFuture for making HTTP requests, and QueryFuture for executing database
 queries." - *Facebook*
 
 This is all true, however *this* library only supports Http requests and the
-ability to execute system commands, asynchronously. (or synchronously)
+ability to execute system commands, asynchronously (or synchronously).
 
 ### What is it?
 
@@ -19,7 +19,7 @@ some pretty nifty little tools, you should go check it out!
 
 These libraries are for everything in the `src/future` so I've namespaced
 them up, cleaned up the code to follow PSR standards (not finished!) and
-have only tested a very small part of it; making Http Requests.
+have only tested a very small part of it; making http requests.
 
 ### Install
 You can add this component to your project using composer:
