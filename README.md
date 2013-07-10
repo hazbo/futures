@@ -32,6 +32,8 @@ You can add this component to your project using composer:
 }
 ```
 
+`composer install` or `php composer.phar install`
+
 ### Asynchronously
 
 ```php
