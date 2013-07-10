@@ -9,6 +9,8 @@ concrete Future implementations: ExecFuture for executing system commands,
 HTTPFuture for making HTTP requests, and QueryFuture for executing database
 queries." - *Facebook*
 
+### What is it?
+
 This set of files was originaly forked from Facebook's `libphutil` which has
 some pretty nifty little tools, you should go check it out!
 
