@@ -3,7 +3,7 @@
 namespace Hazbo\Component\Http;
 
 use
-  Hazbo\Component\ServiceProfiler;
+    Hazbo\Component\ServiceProfiler;
 
 /**
  * Socket-based HTTP future, for making HTTP requests using future semantics.
@@ -30,274 +30,281 @@ use
  *
  * @group futures
  */
-final class HTTPFuture extends BaseHTTPFuture {
+final class HTTPFuture extends BaseHTTPFuture
+{
+    private $host;
+    private $port = 80;
+    private $fullRequestPath;
 
-  private $host;
-  private $port = 80;
-  private $fullRequestPath;
+    private $socket;
+    private $writeBuffer;
+    private $response;
 
-  private $socket;
-  private $writeBuffer;
-  private $response;
+    private $stateConnected     = false;
+    private $stateWriteComplete = false;
+    private $stateReady         = false;
+    private $stateStartTime;
 
-  private $stateConnected     = false;
-  private $stateWriteComplete = false;
-  private $stateReady         = false;
-  private $stateStartTime;
+    private $profilerCallID;
 
-  private $profilerCallID;
-
-  public function setURI($uri) {
-    $parts = parse_url($uri);
-    if (!$parts) {
-      throw new Exception("Could not parse URI '{$uri}'.");
-    }
-
-    if (empty($parts['scheme']) || $parts['scheme'] !== 'http') {
-      throw new Exception(
-        "URI '{$uri}' must be fully qualified with 'http://' scheme.");
-    }
-
-    if (!isset($parts['host'])) {
-      throw new Exception(
-        "URI '{$uri}' must be fully qualified and include host name.");
-    }
-
-    $this->host = $parts['host'];
-
-    if (!empty($parts['port'])) {
-      $this->port = $parts['port'];
-    }
-
-    if (isset($parts['user']) || isset($parts['pass'])) {
-      throw new Exception(
-        "HTTP Basic Auth is not supported by HTTPFuture.");
-    }
-
-    if (isset($parts['path'])) {
-      $this->fullRequestPath = $parts['path'];
-    } else {
-      $this->fullRequestPath = '/';
-    }
-
-    if (isset($parts['query'])) {
-      $this->fullRequestPath .= '?'.$parts['query'];
-    }
-
-    return parent::setURI($uri);
-  }
-
-  public function __destruct() {
-    if ($this->socket) {
-      @fclose($this->socket);
-      $this->socket = null;
-    }
-  }
-
-  public function getReadSockets() {
-    if ($this->socket) {
-      return array($this->socket);
-    }
-    return array();
-  }
-
-  public function getWriteSockets() {
-    if (strlen($this->writeBuffer)) {
-      return array($this->socket);
-    }
-    return array();
-  }
-
-  public function isWriteComplete() {
-    return $this->stateWriteComplete;
-  }
-
-  private function getDefaultUserAgent() {
-    return 'HTTPFuture/1.0';
-  }
-
-  public function isReady() {
-    if ($this->stateReady) {
-      return true;
-    }
-
-    if (!$this->socket) {
-      $this->stateStartTime = microtime(true);
-      $this->socket = $this->buildSocket();
-      if (!$this->socket) {
-        return $this->stateReady;
-      }
-
-      $profiler = \Hazbo\Component\ServiceProfiler\PhutilServiceProfiler::getInstance();
-      $this->profilerCallID = $profiler->beginServiceCall(
-        array(
-          'type' => 'http',
-          'uri' => $this->getURI(),
-        ));
-    }
-
-    if (!$this->stateConnected) {
-      $read   = array();
-      $write  = array($this->socket);
-      $except = array();
-      $select = stream_select($read, $write, $except, $tv_sec = 0);
-      if ($write) {
-        $this->stateConnected = true;
-      }
-    }
-
-    if ($this->stateConnected) {
-      if (strlen($this->writeBuffer)) {
-        $bytes = @fwrite($this->socket, $this->writeBuffer);
-        if ($bytes === false) {
-          throw new Exception("Failed to write to buffer.");
-        } else if ($bytes) {
-          $this->writeBuffer = substr($this->writeBuffer, $bytes);
+    public function setURI($uri) {
+        $parts = parse_url($uri);
+        if (!$parts) {
+            throw new Exception("Could not parse URI '{$uri}'.");
         }
-      }
 
-      if (!strlen($this->writeBuffer)) {
-        $this->stateWriteComplete = true;
-      }
+        if (empty($parts['scheme']) || $parts['scheme'] !== 'http') {
+            throw new Exception(
+                "URI '{$uri}' must be fully qualified with 'http://' scheme.");
+        }
 
-      while (($data = fread($this->socket, 32768)) || strlen($data)) {
-        $this->response .= $data;
-      }
+        if (!isset($parts['host'])) {
+            throw new Exception(
+                "URI '{$uri}' must be fully qualified and include host name.");
+        }
 
-      if ($data === false) {
-        throw new Exception("Failed to read socket.");
-      }
-    }
+        $this->host = $parts['host'];
 
-    return $this->checkSocket();
-  }
+        if (!empty($parts['port'])) {
+            $this->port = $parts['port'];
+        }
 
-  private function buildSocket() {
+        if (isset($parts['user']) || isset($parts['pass'])) {
+            throw new Exception(
+                "HTTP Basic Auth is not supported by HTTPFuture.");
+        }
 
-    $errno = null;
-    $errstr = null;
-    $socket = @stream_socket_client(
-      'tcp://'.$this->host.':'.$this->port,
-      $errno,
-      $errstr,
-      $ignored_connection_timeout = 1.0,
-      STREAM_CLIENT_CONNECT | STREAM_CLIENT_ASYNC_CONNECT);
-
-    if (!$socket) {
-      $this->stateReady = true;
-      $this->result = $this->buildErrorResult(
-        Status_HTTPFutureResponseStatusTransport::ERROR_CONNECTION_FAILED);
-      return null;
-    }
-
-    $ok = stream_set_blocking($socket, 0);
-    if (!$ok) {
-      throw new Exception("Failed to set stream nonblocking.");
-    }
-
-    $this->writeBuffer = $this->buildHTTPRequest();
-
-    return $socket;
-  }
-
-  private function checkSocket() {
-
-    $timeout = false;
-    $now = microtime(true);
-    if (($now - $this->stateStartTime) > $this->getTimeout()) {
-      $timeout = true;
-    }
-
-    if (!feof($this->socket) && !$timeout) {
-      return false;
-    }
-
-    $this->stateReady = true;
-
-    if ($timeout) {
-      $this->result = $this->buildErrorResult(
-        Status_HTTPFutureResponseStatusTransport::ERROR_TIMEOUT);
-    } else if (!$this->stateConnected) {
-      $this->result = $this->buildErrorResult(
-        Status_HTTPFutureResponseStatusTransport::ERROR_CONNECTION_REFUSED);
-    } else if (!$this->stateWriteComplete) {
-      $this->result = $this->buildErrorResult(
-        Status_HTTPFutureResponseStatusTransport::ERROR_CONNECTION_FAILED);
-    } else {
-      $this->result = $this->parseRawHTTPResponse($this->response);
-    }
-
-    $profiler = \Hazbo\Component\ServiceProfiler\PhutilServiceProfiler::getInstance();
-    $profiler->endServiceCall($this->profilerCallID, array());
-
-    return true;
-  }
-
-  private function buildErrorResult($error) {
-    return array(
-      $status = new Status_HTTPFutureResponseStatusTransport($error, $this->getURI()),
-      $body = null,
-      $headers = array());
-  }
-
-  private function buildHTTPRequest() {
-    $data = $this->getData();
-    $method = $this->getMethod();
-    $uri = $this->fullRequestPath;
-
-    $add_headers = array();
-
-    if ($this->getMethod() == 'GET') {
-      if (is_array($data)) {
-        $data = http_build_query($data, '', '&');
-        if (strpos($uri, '?') !== false) {
-          $uri .= '&'.$data;
+        if (isset($parts['path'])) {
+            $this->fullRequestPath = $parts['path'];
         } else {
-          $uri .= '?'.$data;
+            $this->fullRequestPath = '/';
         }
-        $data = '';
-      }
-    } else {
-      if (is_array($data)) {
-        $data = http_build_query($data, '', '&')."\r\n";
+
+        if (isset($parts['query'])) {
+            $this->fullRequestPath .= '?'.$parts['query'];
+        }
+
+        return parent::setURI($uri);
+    }
+
+    public function __destruct()
+    {
+        if ($this->socket) {
+            @fclose($this->socket);
+            $this->socket = null;
+        }
+    }
+
+    public function getReadSockets()
+    {
+        if ($this->socket) {
+            return array($this->socket);
+        }
+        return array();
+    }
+
+    public function getWriteSockets()
+    {
+        if (strlen($this->writeBuffer)) {
+            return array($this->socket);
+        }
+        return array();
+    }
+
+    public function isWriteComplete()
+    {
+        return $this->stateWriteComplete;
+    }
+
+    private function getDefaultUserAgent()
+    {
+        return 'HTTPFuture/1.0';
+    }
+
+    public function isReady()
+    {
+        if ($this->stateReady) {
+            return true;
+        }
+
+        if (!$this->socket) {
+            $this->stateStartTime = microtime(true);
+            $this->socket = $this->buildSocket();
+            if (!$this->socket) {
+                return $this->stateReady;
+            }
+
+            $profiler = \Hazbo\Component\ServiceProfiler\PhutilServiceProfiler::getInstance();
+            $this->profilerCallID = $profiler->beginServiceCall(
+                array(
+                    'type' => 'http',
+                    'uri' => $this->getURI(),
+                ));
+        }
+
+        if (!$this->stateConnected) {
+            $read   = array();
+            $write  = array($this->socket);
+            $except = array();
+            $select = stream_select($read, $write, $except, $tv_sec = 0);
+            if ($write) {
+                $this->stateConnected = true;
+            }
+        }
+
+        if ($this->stateConnected) {
+            if (strlen($this->writeBuffer)) {
+                $bytes = @fwrite($this->socket, $this->writeBuffer);
+                if ($bytes === false) {
+                    throw new Exception("Failed to write to buffer.");
+                } else if ($bytes) {
+                    $this->writeBuffer = substr($this->writeBuffer, $bytes);
+                }
+            }
+
+            if (!strlen($this->writeBuffer)) {
+                $this->stateWriteComplete = true;
+            }
+
+            while (($data = fread($this->socket, 32768)) || strlen($data)) {
+                $this->response .= $data;
+            }
+
+            if ($data === false) {
+                throw new Exception("Failed to read socket.");
+            }
+        }
+
+        return $this->checkSocket();
+    }
+
+    private function buildSocket()
+    {
+        $errno = null;
+        $errstr = null;
+        $socket = @stream_socket_client(
+            'tcp://'.$this->host.':'.$this->port,
+            $errno,
+            $errstr,
+            $ignored_connection_timeout = 1.0,
+            STREAM_CLIENT_CONNECT | STREAM_CLIENT_ASYNC_CONNECT);
+
+        if (!$socket) {
+            $this->stateReady = true;
+            $this->result = $this->buildErrorResult(
+                Status_HTTPFutureResponseStatusTransport::ERROR_CONNECTION_FAILED);
+            return null;
+        }
+
+        $ok = stream_set_blocking($socket, 0);
+        if (!$ok) {
+            throw new Exception("Failed to set stream nonblocking.");
+        }
+
+        $this->writeBuffer = $this->buildHTTPRequest();
+
+        return $socket;
+    }
+
+    private function checkSocket()
+    {
+        $timeout = false;
+        $now = microtime(true);
+        if (($now - $this->stateStartTime) > $this->getTimeout()) {
+            $timeout = true;
+        }
+
+        if (!feof($this->socket) && !$timeout) {
+            return false;
+        }
+
+        $this->stateReady = true;
+
+        if ($timeout) {
+            $this->result = $this->buildErrorResult(
+                Status_HTTPFutureResponseStatusTransport::ERROR_TIMEOUT);
+        } else if (!$this->stateConnected) {
+            $this->result = $this->buildErrorResult(
+                Status_HTTPFutureResponseStatusTransport::ERROR_CONNECTION_REFUSED);
+        } else if (!$this->stateWriteComplete) {
+            $this->result = $this->buildErrorResult(
+                Status_HTTPFutureResponseStatusTransport::ERROR_CONNECTION_FAILED);
+        } else {
+            $this->result = $this->parseRawHTTPResponse($this->response);
+        }
+
+        $profiler = \Hazbo\Component\ServiceProfiler\PhutilServiceProfiler::getInstance();
+        $profiler->endServiceCall($this->profilerCallID, array());
+
+        return true;
+    }
+
+    private function buildErrorResult($error)
+    {
+        return array(
+            $status = new Status_HTTPFutureResponseStatusTransport($error, $this->getURI()),
+            $body = null,
+            $headers = array());
+    }
+
+    private function buildHTTPRequest()
+    {
+        $data = $this->getData();
+        $method = $this->getMethod();
+        $uri = $this->fullRequestPath;
+
+        $add_headers = array();
+
+        if ($this->getMethod() == 'GET') {
+            if (is_array($data)) {
+                $data = http_build_query($data, '', '&');
+                if (strpos($uri, '?') !== false) {
+                    $uri .= '&'.$data;
+                } else {
+                    $uri .= '?'.$data;
+                }
+                $data = '';
+            }
+        } else {
+            if (is_array($data)) {
+                $data = http_build_query($data, '', '&')."\r\n";
+                $add_headers[] = array(
+                    'Content-Type',
+                    'application/x-www-form-urlencoded');
+            }
+        }
+
+        $length = strlen($data);
+
         $add_headers[] = array(
-          'Content-Type',
-          'application/x-www-form-urlencoded');
-      }
+            'Content-Length',
+            $length);
+
+        if (!$this->getHeaders('User-Agent')) {
+            $add_headers[] = array(
+                'User-Agent',
+                $this->getDefaultUserAgent());
+        }
+
+        if (!$this->getHeaders('Host')) {
+            $add_headers[] = array(
+                'Host',
+                $this->host);
+        }
+
+        $headers = array_merge($this->getHeaders(), $add_headers);
+        foreach ($headers as $key => $header) {
+            list($name, $value) = $header;
+            if (strlen($value)) {
+                $value = ': '.$value;
+            }
+            $headers[$key] = $name.$value."\r\n";
+        }
+
+        return
+            "{$method} {$uri} HTTP/1.0\r\n".
+            implode('', $headers).
+            "\r\n".
+            $data;
     }
-
-    $length = strlen($data);
-
-    $add_headers[] = array(
-      'Content-Length',
-      $length);
-
-    if (!$this->getHeaders('User-Agent')) {
-      $add_headers[] = array(
-        'User-Agent',
-        $this->getDefaultUserAgent());
-    }
-
-    if (!$this->getHeaders('Host')) {
-      $add_headers[] = array(
-        'Host',
-        $this->host);
-    }
-
-    $headers = array_merge($this->getHeaders(), $add_headers);
-    foreach ($headers as $key => $header) {
-      list($name, $value) = $header;
-      if (strlen($value)) {
-        $value = ': '.$value;
-      }
-      $headers[$key] = $name.$value."\r\n";
-    }
-
-    return
-      "{$method} {$uri} HTTP/1.0\r\n".
-      implode('', $headers).
-      "\r\n".
-      $data;
-  }
-
 }
