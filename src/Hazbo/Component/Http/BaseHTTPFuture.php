@@ -1,5 +1,9 @@
 <?php
 
+namespace Hazbo\Component\Http;
+
+use Hazbo\Component;
+
 /**
  * Execute HTTP requests with a future-oriented API. For example:
  *
@@ -19,7 +23,7 @@
  * @task internal Internals
  * @group futures
  */
-abstract class BaseHTTPFuture extends Future {
+abstract class BaseHTTPFuture extends Component\Future {
 
   private $method   = 'GET';
   private $timeout  = 300.0;
@@ -284,12 +288,12 @@ abstract class BaseHTTPFuture extends Future {
         // then the normal response. Drop this chunk.
         $response = $body;
       } else {
-        $headers = $this->parseHeaders(idx($matches, 'headers'));
+        $headers = $this->parseHeaders(\Hazbo\Component\Utils\Utils::idx($matches, 'headers'));
         break;
       }
     }
 
-    $status = new HTTPFutureResponseStatusHTTP($response_code, $body);
+    $status = new Status_HTTPFutureResponseStatusHTTP($response_code, $body);
     return array($status, $body, $headers);
   }
 
@@ -334,8 +338,8 @@ abstract class BaseHTTPFuture extends Future {
     $body = null;
     $headers = array();
 
-    $status = new HTTPFutureResponseStatusParse(
-      HTTPFutureResponseStatusParse::ERROR_MALFORMED_RESPONSE,
+    $status = new Status_HTTPFutureResponseStatusParse(
+      Status_HTTPFutureResponseStatusParse::ERROR_MALFORMED_RESPONSE,
       $raw_response);
     return array($status, $body, $headers);
   }

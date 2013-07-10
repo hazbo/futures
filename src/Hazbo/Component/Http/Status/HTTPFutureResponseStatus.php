@@ -1,9 +1,11 @@
 <?php
 
+namespace Hazbo\Component\Http;
+
 /**
  * @group futures
  */
-abstract class HTTPFutureResponseStatus extends Exception {
+abstract class Status_HTTPFutureResponseStatus extends \Exception {
 
   private $statusCode;
   private $uri;

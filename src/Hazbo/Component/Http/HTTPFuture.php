@@ -1,5 +1,10 @@
 <?php
 
+namespace Hazbo\Component\Http;
+
+use
+  Hazbo\Component\ServiceProfiler;
+
 /**
  * Socket-based HTTP future, for making HTTP requests using future semantics.
  * This is an alternative to :CURLFuture which has better resolution behavior
@@ -123,7 +128,7 @@ final class HTTPFuture extends BaseHTTPFuture {
         return $this->stateReady;
       }
 
-      $profiler = PhutilServiceProfiler::getInstance();
+      $profiler = \Hazbo\Component\ServiceProfiler\PhutilServiceProfiler::getInstance();
       $this->profilerCallID = $profiler->beginServiceCall(
         array(
           'type' => 'http',
@@ -181,7 +186,7 @@ final class HTTPFuture extends BaseHTTPFuture {
     if (!$socket) {
       $this->stateReady = true;
       $this->result = $this->buildErrorResult(
-        HTTPFutureResponseStatusTransport::ERROR_CONNECTION_FAILED);
+        Status_HTTPFutureResponseStatusTransport::ERROR_CONNECTION_FAILED);
       return null;
     }
 
@@ -211,18 +216,18 @@ final class HTTPFuture extends BaseHTTPFuture {
 
     if ($timeout) {
       $this->result = $this->buildErrorResult(
-        HTTPFutureResponseStatusTransport::ERROR_TIMEOUT);
+        Status_HTTPFutureResponseStatusTransport::ERROR_TIMEOUT);
     } else if (!$this->stateConnected) {
       $this->result = $this->buildErrorResult(
-        HTTPFutureResponseStatusTransport::ERROR_CONNECTION_REFUSED);
+        Status_HTTPFutureResponseStatusTransport::ERROR_CONNECTION_REFUSED);
     } else if (!$this->stateWriteComplete) {
       $this->result = $this->buildErrorResult(
-        HTTPFutureResponseStatusTransport::ERROR_CONNECTION_FAILED);
+        Status_HTTPFutureResponseStatusTransport::ERROR_CONNECTION_FAILED);
     } else {
       $this->result = $this->parseRawHTTPResponse($this->response);
     }
 
-    $profiler = PhutilServiceProfiler::getInstance();
+    $profiler = \Hazbo\Component\ServiceProfiler\PhutilServiceProfiler::getInstance();
     $profiler->endServiceCall($this->profilerCallID, array());
 
     return true;
@@ -230,7 +235,7 @@ final class HTTPFuture extends BaseHTTPFuture {
 
   private function buildErrorResult($error) {
     return array(
-      $status = new HTTPFutureResponseStatusTransport($error, $this->getURI()),
+      $status = new Status_HTTPFutureResponseStatusTransport($error, $this->getURI()),
       $body = null,
       $headers = array());
   }

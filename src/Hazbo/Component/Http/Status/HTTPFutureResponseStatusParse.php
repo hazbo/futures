@@ -1,9 +1,11 @@
 <?php
 
+namespace Hazbo\Component\Http;
+
 /**
  * @group futures
  */
-final class HTTPFutureResponseStatusParse extends HTTPFutureResponseStatus {
+final class Status_HTTPFutureResponseStatusParse extends Status_HTTPFutureResponseStatus {
 
   const ERROR_MALFORMED_RESPONSE = 1;
 

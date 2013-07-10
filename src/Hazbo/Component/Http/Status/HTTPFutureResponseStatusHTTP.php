@@ -1,9 +1,11 @@
 <?php
 
+namespace Hazbo\Component\Http;
+
 /**
  * @group futures
  */
-final class HTTPFutureResponseStatusHTTP extends HTTPFutureResponseStatus {
+final class Status_HTTPFutureResponseStatusHTTP extends Status_HTTPFutureResponseStatus {
 
   private $excerpt;
 
@@ -15,7 +17,7 @@ final class HTTPFutureResponseStatusHTTP extends HTTPFutureResponseStatus {
     } else {
       $excerpt = $body;
     }
-    $this->excerpt = phutil_utf8ize($excerpt);
+    $this->excerpt = \Hazbo\Component\Utils\Utf8::phutil_utf8ize($excerpt);
 
     parent::__construct($status_code);
   }
@@ -38,7 +40,7 @@ final class HTTPFutureResponseStatusHTTP extends HTTPFutureResponseStatus {
       500 => 'Internal Server Error',
     );
 
-    return idx($map, $code)."\n".$this->excerpt."\n";
+    return \Hazbo\Component\Utils\Utils::idx($map, $code)."\n".$this->excerpt."\n";
   }
 
 }

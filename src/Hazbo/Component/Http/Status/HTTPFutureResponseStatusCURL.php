@@ -1,9 +1,11 @@
 <?php
 
+namespace Hazbo\Component\Http;
+
 /**
  * @group futures
  */
-final class HTTPFutureResponseStatusCURL extends HTTPFutureResponseStatus {
+final class Status_HTTPFutureResponseStatusCURL extends Status_HTTPFutureResponseStatus {
 
   protected function getErrorCodeType($code) {
     return 'cURL';

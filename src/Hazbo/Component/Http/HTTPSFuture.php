@@ -1,5 +1,7 @@
 <?php
 
+namespace Hazbo\Component\Http;
+
 /**
  * Very basic HTTPS future.
  *
@@ -73,7 +75,7 @@ final class HTTPSFuture extends BaseHTTPFuture {
     try {
       list($body) = $future->resolvex();
       return $body;
-    } catch (HTTPFutureResponseStatus $ex) {
+    } catch (Status_HTTPFutureResponseStatus $ex) {
       return false;
     }
   }
@@ -274,7 +276,7 @@ final class HTTPSFuture extends BaseHTTPFuture {
     $err_code = $info['result'];
 
     if ($err_code) {
-      $status = new HTTPFutureResponseStatusCURL($err_code, $uri);
+      $status = new Status_HTTPFutureResponseStatusCURL($err_code, $uri);
       $body = null;
       $headers = array();
       $this->result = array($status, $body, $headers);

@@ -1,9 +1,11 @@
 <?php
 
+namespace Hazbo\Component\Http;
+
 /**
  * @group futures
  */
-final class HTTPFutureResponseStatusTransport extends HTTPFutureResponseStatus {
+final class Http_Status_HTTPFutureResponseStatusTransport extends Status_HTTPFutureResponseStatus {
 
   const ERROR_TIMEOUT             = 1;
   const ERROR_CONNECTION_ABORTED  = 2;
