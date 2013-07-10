@@ -36,6 +36,8 @@ You can add this component to your project using composer:
 
 ```php
 <?php
+require_once('path/to/vendor/autoload.php');
+
 use Hazbo\Component\Http\HttpFuture;
 
 $future = new HttpFuture('http://graph.facebook.com/zuck');
@@ -71,6 +73,8 @@ request and you can then check the progress of this using `isReady`.
 
 ```php
 <?php
+require_once('path/to/vendor/autoload.php');
+
 use Hazbo\Component\Http\HttpFuture;
 
 $future = new HttpFuture('http://graph.facebook.com/zuck');
@@ -86,6 +90,5 @@ I don't know how well I've explained this... but it's awesome! Credit to the
 guys at Facebook who started this off. Feel free to contribute!
 
 ### Disclaimer
-
 I have not yet finished off the code for performing system commands! I'm working
 real hard on it though.
