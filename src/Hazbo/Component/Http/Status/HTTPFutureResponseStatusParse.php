@@ -33,6 +33,4 @@ final class Status_HTTPFutureResponseStatusParse extends Status_HTTPFutureRespon
             "The remote host returned something other than an HTTP response: ".
             $this->rawResponse;
     }
-
 }
-
