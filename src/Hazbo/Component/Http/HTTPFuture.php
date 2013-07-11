@@ -2,8 +2,7 @@
 
 namespace Hazbo\Component\Http;
 
-use
-    Hazbo\Component\ServiceProfiler;
+use Hazbo\Component\ServiceProfiler\PhutilServiceProfiler;
 
 /**
  * Socket-based HTTP future, for making HTTP requests using future semantics.
@@ -119,7 +118,7 @@ final class HTTPFuture extends BaseHTTPFuture
                 return $this->stateReady;
             }
 
-            $profiler = \Hazbo\Component\ServiceProfiler\PhutilServiceProfiler::getInstance();
+            $profiler = PhutilServiceProfiler::getInstance();
             $this->profilerCallID = $profiler->beginServiceCall(
                 array(
                     'type' => 'http',
@@ -218,7 +217,7 @@ final class HTTPFuture extends BaseHTTPFuture
             $this->result = $this->parseRawHTTPResponse($this->response);
         }
 
-        $profiler = \Hazbo\Component\ServiceProfiler\PhutilServiceProfiler::getInstance();
+        $profiler = PhutilServiceProfiler::getInstance();
         $profiler->endServiceCall($this->profilerCallID, array());
 
         return true;
