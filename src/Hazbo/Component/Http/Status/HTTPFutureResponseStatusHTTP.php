@@ -8,13 +8,25 @@ final class Status_HTTPFutureResponseStatusHTTP extends Status_HTTPFutureRespons
 {
     private $excerpt;
 
-    public function __construct($status_code, $body)
+    public function __construct($status_code, $body, array $headers)
     {
         if (strlen($body) > 512) {
             $excerpt = substr($body, 0, 512).'...';
         } else {
             $excerpt = $body;
         }
+
+        $content_type = BaseHTTPFuture::getHeader($headers, 'Content-Type');
+        $match = null;
+        if (preg_match('/;\s*charset=([^;]+)/', $content_type, $match)) {
+            $encoding = trim($match[1], "\"'");
+            try {
+                $excerpt = phutil_utf8_convert($excerpt, 'UTF-8', $encoding);
+            } catch (Exception $ex) {
+                
+            }
+        }
+
         $this->excerpt = Utf8::phutil_utf8ize($excerpt);
 
         parent::__construct($status_code);
