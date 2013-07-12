@@ -71,8 +71,7 @@ final class HTTPFuture extends BaseHTTPFuture
         }
 
         if (isset($parts['user']) || isset($parts['pass'])) {
-            throw new Exception(
-                "HTTP Basic Auth is not supported by HTTPFuture.");
+            throw new Exception("HTTP Basic Auth is not supported by HTTPFuture.");
         }
 
         if (isset($parts['path'])) {
