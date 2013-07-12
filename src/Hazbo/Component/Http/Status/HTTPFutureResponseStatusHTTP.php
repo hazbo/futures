@@ -21,7 +21,7 @@ final class Status_HTTPFutureResponseStatusHTTP extends Status_HTTPFutureRespons
         if (preg_match('/;\s*charset=([^;]+)/', $content_type, $match)) {
             $encoding = trim($match[1], "\"'");
             try {
-                $excerpt = phutil_utf8_convert($excerpt, 'UTF-8', $encoding);
+                $excerpt = Utf8::phutil_utf8_convert($excerpt, 'UTF-8', $encoding);
             } catch (Exception $ex) {
                 
             }

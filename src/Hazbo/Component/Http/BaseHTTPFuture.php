@@ -335,7 +335,7 @@ abstract class BaseHTTPFuture extends Future
      */
     public static function getHeader(array $headers, $search)
     {
-        assert_instances_of($headers, 'array');
+        Utils::assert_instances_of($headers, 'array');
         foreach ($headers as $header) {
             list($name, $value) = $header;
             if (strcasecmp($name, $search) == 0) {
