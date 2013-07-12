@@ -2,8 +2,7 @@
 
 namespace Hazbo\Component\Http;
 
-use
-    Hazbo\Component\ServiceProfiler;
+use Hazbo\Component\ServiceProfiler\PhutilServiceProfiler;
 
 /**
  * Socket-based HTTP future, for making HTTP requests using future semantics.
@@ -49,20 +48,10 @@ final class HTTPFuture extends BaseHTTPFuture
 
     public function setURI($uri)
     {
-        $parts = parse_url($uri);
-        if (!$parts) {
-            throw new Exception("Could not parse URI '{$uri}'.");
-        }
+        $url_processor = new UrlProcessor($uri);
+        $url_processor->validateForHttpFuture();
 
-        if (empty($parts['scheme']) || $parts['scheme'] !== 'http') {
-            throw new Exception(
-                "URI '{$uri}' must be fully qualified with 'http://' scheme.");
-        }
-
-        if (!isset($parts['host'])) {
-            throw new Exception(
-                "URI '{$uri}' must be fully qualified and include host name.");
-        }
+        $parts = $url_processor->getUrlParts();
 
         $this->host = $parts['host'];
 
@@ -83,7 +72,6 @@ final class HTTPFuture extends BaseHTTPFuture
         if (isset($parts['query'])) {
             $this->fullRequestPath .= '?'.$parts['query'];
         }
-
         return parent::setURI($uri);
     }
 
@@ -134,7 +122,7 @@ final class HTTPFuture extends BaseHTTPFuture
                 return $this->stateReady;
             }
 
-            $profiler = \Hazbo\Component\ServiceProfiler\PhutilServiceProfiler::getInstance();
+            $profiler = PhutilServiceProfiler::getInstance();
             $this->profilerCallID = $profiler->beginServiceCall(
                 array(
                     'type' => 'http',
@@ -233,7 +221,7 @@ final class HTTPFuture extends BaseHTTPFuture
             $this->result = $this->parseRawHTTPResponse($this->response);
         }
 
-        $profiler = \Hazbo\Component\ServiceProfiler\PhutilServiceProfiler::getInstance();
+        $profiler = PhutilServiceProfiler::getInstance();
         $profiler->endServiceCall($this->profilerCallID, array());
 
         return true;

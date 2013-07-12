@@ -3,7 +3,8 @@
 namespace Hazbo\Component\Http;
 
 use
-    Hazbo\Component;
+    Hazbo\Component\Future,
+    Hazbo\Component\Utils\Utils;
 
 /**
  * Execute HTTP requests with a future-oriented API. For example:
@@ -24,7 +25,7 @@ use
  * @task internal Internals
  * @group futures
  */
-abstract class BaseHTTPFuture extends Component\Future
+abstract class BaseHTTPFuture extends Future
 {
     private $method   = 'GET';
     private $timeout  = 300.0;
@@ -285,7 +286,7 @@ abstract class BaseHTTPFuture extends Component\Future
                 // then the normal response. Drop this chunk.
                 $response = $body;
             } else {
-                $headers = $this->parseHeaders(\Hazbo\Component\Utils\Utils::idx($matches, 'headers'));
+                $headers = $this->parseHeaders(Utils::idx($matches, 'headers'));
                 break;
             }
         }
