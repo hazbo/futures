@@ -19,7 +19,7 @@ final class HTTPSFuture extends BaseHTTPFuture
 
     private
         $handle,
-        $profilerCallID;
+        $profilerCallID,
         $cabundle;
 
     /**
