@@ -2,7 +2,8 @@
 
 namespace Hazbo\Component\Exec;
 
-use Hazbo\Component\Utils;
+use Hazbo\Component\Utils,
+    Hazbo\Component\ServiceProfiler;
 
 /**
  * Execute system commands in parallel using futures.
@@ -510,7 +511,7 @@ final class ExecFuture extends \Hazbo\Component\Future
     {
         if (!$this->pipes) {
 
-            $profiler = PhutilServiceProfiler::getInstance();
+            $profiler = ServiceProfiler\PhutilServiceProfiler::getInstance();
             $this->profilerCallID = $profiler->beginServiceCall(
                 array(
                     'type'    => 'exec',
@@ -528,6 +529,7 @@ final class ExecFuture extends \Hazbo\Component\Future
             }
 
             $pipes = array();
+
             $proc = proc_open(
                 $unmasked_command,
                 self::$descriptorSpec,
@@ -542,7 +544,7 @@ final class ExecFuture extends \Hazbo\Component\Future
 
             list($stdin, $stdout, $stderr) = $pipes;
 
-            if (!phutil_is_windows()) {
+            if (!Utils\Utils::phutil_is_windows()) {
 
                 // On Windows, there's no such thing as nonblocking interprocess I/O.
                 // Just leave the sockets blocking and hope for the best. Some features
@@ -652,11 +654,11 @@ final class ExecFuture extends \Hazbo\Component\Future
         $this->stdin  = null;
 
         if ($this->profilerCallID !== null) {
-            $profiler = PhutilServiceProfiler::getInstance();
+            $profiler = ServiceProfiler\PhutilServiceProfiler::getInstance();
             $profiler->endServiceCall(
                 $this->profilerCallID,
                 array(
-                    'err' => $this->result ? idx($this->result, 0) : null,
+                    'err' => $this->result ? Utils\Utils::idx($this->result, 0) : null,
                 ));
             $this->profilerCallID = null;
         }
