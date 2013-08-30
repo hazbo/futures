@@ -1,5 +1,9 @@
 <?php
 
+namespace Hazbo\Component\Exec;
+
+use Hazbo\Component\Utils;
+
 /**
  * Execute system commands in parallel using futures.
  *
@@ -20,7 +24,7 @@
  * @task internal Internals
  * @group exec
  */
-final class ExecFuture extends Future
+final class ExecFuture extends \Hazbo\Component\Future
 {
     protected
         $pipes      = array(),
@@ -55,7 +59,6 @@ final class ExecFuture extends Future
         2 => array('pipe', 'w'),  // stderr
     );
 
-
 /* -(  Creating ExecFutures  )----------------------------------------------- */
 
 
@@ -73,7 +76,7 @@ final class ExecFuture extends Future
     public function __construct($command)
     {
         $argv = func_get_args();
-        $this->command = call_user_func_array('csprintf', $argv);
+        $this->command = call_user_func_array(array(new Utils\Csprintf(), 'csprintf'), $argv);
     }
 
 
@@ -480,7 +483,7 @@ final class ExecFuture extends Future
         do {
             $data = fread($stream, 4096);
             if (false === $data) {
-                throw new Exception('Failed to read from '.$description);
+                throw new \Exception('Failed to read from '.$description);
             }
 
             $read_bytes = strlen($data);
@@ -520,7 +523,7 @@ final class ExecFuture extends Future
             }
 
             $unmasked_command = $this->command;
-            if ($unmasked_command instanceof PhutilCommandString) {
+            if ($unmasked_command instanceof Utils\PhutilCommandString) {
                 $unmasked_command = $unmasked_command->getUnmaskedString();
             }
 
@@ -531,7 +534,7 @@ final class ExecFuture extends Future
                 $pipes,
                 $this->cwd);
             if (!is_resource($proc)) {
-                throw new Exception('Failed to open process.');
+                throw new \Exception('Failed to open process.');
             }
 
             $this->pipes = $pipes;
@@ -549,7 +552,7 @@ final class ExecFuture extends Future
                         (!stream_set_blocking($stderr, false)) ||
                         (!stream_set_blocking($stdin,  false))) {
                     $this->__destruct();
-                    throw new Exception('Failed to set streams nonblocking.');
+                    throw new \Exception('Failed to set streams nonblocking.');
                 }
             }
 
@@ -567,7 +570,7 @@ final class ExecFuture extends Future
         if (isset($this->stdin) && strlen($this->stdin)) {
             $bytes = fwrite($stdin, $this->stdin);
             if ($bytes === false) {
-                throw new Exception('Unable to write to stdin!');
+                throw new \Exception('Unable to write to stdin!');
             } else if ($bytes) {
                 $this->stdin = substr($this->stdin, $bytes);
             }

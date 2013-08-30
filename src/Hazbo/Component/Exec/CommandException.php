@@ -1,11 +1,13 @@
 <?php
 
+namespace Hazbo\Component\Exec;
+
 /**
  * Exception thrown when a system command fails.
  * @group exec
  */
-final class CommandException extends Exception {
-
+final class CommandException extends \Exception
+{
   protected $command;
   protected $stdout;
   protected $stderr;
@@ -73,6 +75,4 @@ final class CommandException extends Exception {
       return $string;
     }
   }
-
 }
-
